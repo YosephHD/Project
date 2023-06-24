@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <style>
+    /* Tambahkan CSS sesuai kebutuhan Anda */
+    .login-container {
+      width: 300px;
+      height: 200px;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-input {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <label for="email">Email:</label>
+    <input type="text" id="email" class="login-input">
+    <label for="password">Password:</label>
+    <input type="password" id="password" class="login-input">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    function login() {
+        function login() {
+  // Mengakses spreadsheet yang berisi data validUsers dan log
+  var spreadsheet = SpreadsheetApp.openById("1TvEIgUXRAWiDVN49HUmZgbv_mJmcgs44XBHCcSprnuk");
+  var validUsersSheet = spreadsheet.getSheetByName("email login");
+  var logSheet = spreadsheet.getSheetByName("Log");
+
+  // Mendapatkan range data email, password, dan status dari validUsersSheet
+  var emailRange = validUsersSheet.getRange('B2:B');
+  var passwordRange = validUsersSheet.getRange('C2:C');
+  var statusRange = validUsersSheet.getRange('D2:D');
+
+  // Mendapatkan nilai-nilai email, password, dan status dari range yang sesuai
+  var emailValues = emailRange.getValues();
+  var passwordValues = passwordRange.getValues();
+  var statusValues = statusRange.getValues();
+
+  // Membangun objek validUsers dari data yang didapatkan
+  var validUsers = {};
+  for (var i = 0; i < emailValues.length; i++) {
+    var email = emailValues[i][0];
+    var password = passwordValues[i][0];
+    var status = statusValues[i][0];
+
+    // Hanya memasukkan data ke validUsers jika statusnya "Aktif"
+    if (status === "Aktif") {
+      validUsers[email] = password;
+    }
+  }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var email = '';
+  var ei = SpreadsheetApp.getUi();
+  var tb = ei.Button.CANCEL;
+  var result1 = ei.prompt('Silahkan Masukkan Email', ei.ButtonSet.OK);
+  var button1 = result1.getSelectedButton();
+  email = result1.getResponseText();
+
+  if (button1 == ei.Button.OK && validUsers.hasOwnProperty(email)) {
+    ei.alert('Email Berhasil dimasukkan');
+  } else {
+    // Merekam email yang gagal dimasukkan oleh pengguna ke dalam log sheet
+    var logLastRow = logSheet.getLastRow();
+    logSheet.getRange("B" + (logLastRow + 1)).setValue(email);
+    logSheet.getRange("C" + (logLastRow + 1)).setValue(new Date());
+
+    while (!validUsers.hasOwnProperty(email) || tb != ei.Button.OK) {
+      var pmt1 = ei.prompt('Silahkan Masukkan Kembali Email Anda', ei.ButtonSet.OK);
+      email = pmt1.getResponseText();
+      tb = pmt1.getSelectedButton();
+
+      // Merekam email yang gagal dimasukkan oleh pengguna ke dalam log sheet
+      var logLastRow = logSheet.getLastRow();
+      logSheet.getRange("B" + (logLastRow + 1)).setValue(email);
+      logSheet.getRange("C" + (logLastRow + 1)).setValue(new Date());
+    }
+    ei.alert('Email Berhasil dimasukkan');
+  }
+
+  var pwd = '';
+  var ui = SpreadsheetApp.getUi();
+  var bt = ui.Button.CANCEL;
+  var result = ui.prompt('Silahkan Masukkan Password', ui.ButtonSet.OK);
+  var button = result.getSelectedButton();
+  pwd = result.getResponseText();
+
+  if (button == ui.Button.OK && pwd == validUsers[email]) {
+    ui.alert('Kata Sandi Berhasil dimasukkan');
+  } else {
+    while (pwd != validUsers[email] || bt != ui.Button.OK) {
+      var pmt = ui.prompt('Silahkan Masukkan Kembali Kata Sandi', ui.ButtonSet.OK);
+      pwd = pmt.getResponseText();
+      bt = pmt.getSelectedButton();
+    }
+    ui.alert('Kata Sandi Berhasil dimasukkan');
+  }
+}
+
+    }
+  </script>
+</body>
+</html>
